@@ -1,0 +1,19 @@
+version: '3.1' #version docker compose
+
+services:
+  db:
+    image: postgres:15.2-alpine3.17
+    restart: always #si el servicio se cae se reinicia solo
+    environment: #variables de entorno
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=user
+    ports:
+      - '5432:5432' #puerto de postgresql
+    volumes:
+      - ./src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql #la segunda ruta es donde se guardan las db en postgres
+
+  adminer: #gestor de bd en php
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
