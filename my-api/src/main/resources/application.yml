@@ -1,0 +1,14 @@
+#spring usa hikari como gestor de bd, a su vez este usa jdbc que permite
+#hacer la conexion entre java y bases de datos
+spring:
+  application:
+    name: crud-example
+datasource:
+  my-connection:
+    jdbc-url: jdbc:postgresql://localhost:5432/electronic_products
+    username: user
+    password: user
+    maximum-pool-size: 10
+    pool-name: "crud-pool"
+    auto-commit: true
+
