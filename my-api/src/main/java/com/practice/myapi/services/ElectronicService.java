@@ -21,4 +21,8 @@ public class ElectronicService {
     public String createElectronic(electronicProduct newElectronic) {
         return electronicRepository.createElectronic(newElectronic);
     }
+
+    public String insertElectronicProducts(List<electronicProduct> newElectronic) {
+        return electronicRepository.insertElectronicProducts(newElectronic);
+    }
 }

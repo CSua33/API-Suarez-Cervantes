@@ -26,4 +26,8 @@ public class ElectronicController {
     public String insertElectronic(@RequestBody electronicProduct newElectronic){
         return electronicService.createElectronic(newElectronic);
     }
+    @PostMapping("/electronics")
+    public String insertElectronics(@RequestBody List<electronicProduct> newElectronic){
+        return electronicService.insertElectronicProducts(newElectronic);
+    }
 }

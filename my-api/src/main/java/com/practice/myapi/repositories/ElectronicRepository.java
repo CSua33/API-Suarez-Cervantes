@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +17,10 @@ public class ElectronicRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ElectronicMapper mapper = new ElectronicMapper();
     private final String table = "electronic_product";
-    public ElectronicRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+    private final TransactionTemplate transactionTemplate;
+    public ElectronicRepository(NamedParameterJdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.transactionTemplate = transactionTemplate;
     }
 
     public List<electronicProduct> getAlLElectronics(){
@@ -45,8 +48,28 @@ public class ElectronicRepository {
             jdbcTemplate.update(insertQuery, parameterSource);
         } catch (Exception e) {
             // En caso de error, realizar un rollback de la transacción
-            return "Fallo al crear los datos";
+            throw e;
         }
+        return "Datos insertados correctamente";
+    }
+
+    public String insertElectronicProducts(List<electronicProduct> newElectronic) {
+        // Iniciar una transacción
+        transactionTemplate.execute(status -> {
+            try {
+                for (electronicProduct product : newElectronic) {
+                    SqlParameterSource parameterSource = new MapSqlParameterSource()
+                            .addValue("name", product.name)
+                            .addValue("price", product.price);
+                    String insertQuery = "INSERT INTO " + table + " (name, price) VALUES (:name, :price)";
+                    jdbcTemplate.update(insertQuery, parameterSource);
+                }
+                return null; // Retornar null
+            } catch (Exception e) {
+                status.setRollbackOnly(); // Realizar un rollback en caso de excepción
+                throw e;
+            }
+        });
         return "Datos insertados correctamente";
     }
 }
