@@ -17,4 +17,8 @@ public class ElectronicService {
     public List<electronicProduct> getAlLElectronics(){
         return electronicRepository.getAlLElectronics();
     }
+
+    public String createElectronic(electronicProduct newElectronic) {
+        return electronicRepository.createElectronic(newElectronic);
+    }
 }

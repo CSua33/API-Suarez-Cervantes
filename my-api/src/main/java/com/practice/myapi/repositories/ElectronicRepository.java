@@ -2,7 +2,9 @@ package com.practice.myapi.repositories;
 
 import com.practice.myapi.model.electronicProduct;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -13,12 +15,13 @@ import java.util.List;
 public class ElectronicRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ElectronicMapper mapper = new ElectronicMapper();
+    private final String table = "electronic_product";
     public ElectronicRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public List<electronicProduct> getAlLElectronics(){
-        String sql = "select * from electronic_product";
+        String sql = "select * from " + table;
         return jdbcTemplate.query(sql,mapper);//los datos que vengan de sql hay que mapearlos a java
     }
 
@@ -31,5 +34,19 @@ public class ElectronicRepository {
             int price = rs.getInt("price");
             return new electronicProduct(id,name,price);
         }
+    }
+
+    public String createElectronic(electronicProduct newElectronic) {
+        try {
+            SqlParameterSource parameterSource = new MapSqlParameterSource()
+                    .addValue("name", newElectronic.name)
+                    .addValue("price", newElectronic.price);
+            String insertQuery = "INSERT INTO " + table + " (name, price) VALUES (:name, :price)";// : es sintaxis de jdbc para mandar parametros nombrados especificamente
+            jdbcTemplate.update(insertQuery, parameterSource);
+        } catch (Exception e) {
+            // En caso de error, realizar un rollback de la transacción
+            return "Fallo al crear los datos";
+        }
+        return "Datos insertados correctamente";
     }
 }
